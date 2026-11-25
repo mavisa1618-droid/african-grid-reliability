@@ -1,1 +1,10 @@
 data/CATF_data.csv
+
+# R / RStudio
+.Rhistory
+.RData
+.Rproj.user/
+*_cache/
+*_files/
+analysis/*.pdf
+analysis/*.tex

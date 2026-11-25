@@ -66,28 +66,8 @@ CATF_data <- read_csv("../data/CATF_data.csv")
 ```
 
 ```{r clean_data, include=FALSE}
-stat_mode <- function(x) {
-  x <- x[!is.na(x)]
-  if (length(x) == 0) return(NA)
-  ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
-}
-
-numeric_cols <- CATF_data |>
-  select(where(is.numeric)) |>
-  names()
-
-character_cols <- CATF_data |>
-  select(where(is.character), -country) |>
-  names()
-
-CATF_clean <- CATF_data |>
-  group_by(country) |>
-  summarise(
-    across(all_of(numeric_cols), function(x){ median(x, na.rm = TRUE) }),
-    across(all_of(character_cols), stat_mode),
-    n_sources = n()
-  )
+source("../R/clean_data.R")
+CATF_clean <- clean_catf(CATF_data)
 ```
 
 ## Introduction and Key Variables:
