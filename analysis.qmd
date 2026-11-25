@@ -1,0 +1,830 @@
+---
+title: "Why Do African Power Grids Fail?"
+subtitle: "Examining Policy, Wealth, Infrastructure, and Access as Drivers of Electricity Reliability"
+author: "Aminaa Enkhbat, Capucine Crouzet, Maria Ramos and Vineet Koushal | Group 0111-E"
+date: today
+format:
+  beamer:
+    theme: Madrid
+    colortheme: default
+    fonttheme: serif
+    aspectratio: 169
+    slide-level: 2
+    toc: false
+    incremental: false
+    pdf-engine: pdflatex
+    keep-tex: false
+    include-in-header:
+      text: |
+        \setbeamerfont{frametitle}{size=\footnotesize}
+        \setbeamerfont{normal text}{size=\scriptsize}
+        \AtBeginDocument{\usebeamerfont{normal text}}
+        \setbeamertemplate{footline}{
+          \leavevmode
+          \hbox{
+            \begin{beamercolorbox}[wd=.33\paperwidth,ht=2.25ex,dp=1ex,left]{author in head/foot}
+              \usebeamerfont{author in head/foot}\tiny\hspace{1ex}Enkhbat, Crouzet, Ramos, Koushal
+            \end{beamercolorbox}
+            \begin{beamercolorbox}[wd=.44\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}
+              \usebeamerfont{title in head/foot}\tiny Why Do African Power Grids Fail?
+            \end{beamercolorbox}
+            \begin{beamercolorbox}[wd=.23\paperwidth,ht=2.25ex,dp=1ex,center]{date in head/foot}
+              \usebeamerfont{date in head/foot}\tiny 2026-03-25\quad\insertframenumber/24
+            \end{beamercolorbox}
+          }
+          \vskip0pt
+        }
+editor: visual
+---
+
+```{r setup, include=FALSE}
+library(gridExtra)
+library(kableExtra)
+library(tidyverse)
+library(patchwork)
+library(knitr)
+library(cowplot)
+options(knitr.table.format = "latex")
+knitr::opts_chunk$set(
+echo = FALSE,
+include = TRUE,
+warning = FALSE,
+message = FALSE,
+results = "markup",
+fig.width = 6,
+fig.height = 3.5,
+fig.align = "center",
+out.width = "80%"
+)
+```
+
+```{r load-data, echo=FALSE}
+CATF_data <- read_csv("CATF_data.csv")
+```
+
+```{r clean_data, include=FALSE}
+stat_mode <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) return(NA)
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+numeric_cols <- CATF_data |>
+  select(where(is.numeric)) |>
+  names()
+
+character_cols <- CATF_data |>
+  select(where(is.character), -country) |>
+  names()
+
+CATF_clean <- CATF_data |>
+  group_by(country) |>
+  summarise(
+    across(all_of(numeric_cols), function(x){ median(x, na.rm = TRUE) }),
+    across(all_of(character_cols), stat_mode),
+    n_sources = n()
+  )
+```
+
+## Introduction and Key Variables:
+
+**Theme:** Factors Influencing Electricity Reliability Across Africa 
+
+**Research Goal:** To identify whether policy ambition, economic conditions, infrastructure quality, and electricity access predict electricity reliability failures across African countries, and to inform CATF's Electricity Sector Performance Scorecard (CATF-ESPS).
+
+**Target Population:** African countries with available electricity sector data.
+
+**Audience:** This investigation is intended for the Clean Air Task Force (CATF), a global non-profit climate organization that develops and advocates for international technology and policy solutions, to inform the development of their Electricity Sector Performance Scorecard (CATF-ESPS).
+
+**Key Variables:**
+
+```{r echo=FALSE}
+data.frame(
+  Variable = c("SAIDI", "SAIFI", "Electrification Rate",
+               "Energy Not Supplied (ENS)", "Distribution & Transmission Losses"),
+  Measure = c(
+    "Average hours of power outages per customer per year",
+    "Average number of outages per customer per year",
+    "Share of population with electricity access",
+    "Electricity demand that could not be met",
+    "Percentage of electricity lost in the grid"
+  )
+) |>
+  kable(col.names = c("Variable", "What it measures"),
+        format = "latex", booktabs = TRUE, longtable = FALSE) |>
+  kable_styling(font_size = 7, full_width = TRUE,
+                latex_options = "hold_position") |>
+  column_spec(1, width = "3.5cm") |>
+  column_spec(2, width = "8.5cm")
+```
+
+## New Variables and Data Wrangling:
+
+**New Variables:**
+
+```{r echo=FALSE}
+data.frame(
+  Variable = c("Total System Loss", "Network Size",
+               "Electrification Category", "ENS Group"),
+  Represents = c(
+    "Distribution and transmission losses combined",
+    "Countries grouped into Small, Medium, or Large based on electrification rate",
+    "Countries grouped into four levels from Low to Very High electrification",
+    "Identifies countries with unusually high unmet electricity demand"
+  )
+) |>
+  kable(col.names = c("Variable", "What it represents"),
+        format = "latex", booktabs = TRUE, longtable = FALSE) |>
+  kable_styling(font_size = 7, full_width = TRUE,
+                latex_options = "hold_position") |>
+  column_spec(1, width = "3.5cm") |>
+  column_spec(2, width = "8.5cm")
+```
+
+**Data Wrangling:** The dataset was aggregated to one row per country using median values for numeric variables and mode for character variables.
+
+## Overall Conclusion:
+
+**Key Findings:**
+
+-   **Better electrical reliability is associated with higher renewable ambition**, but this is probably more the result of better planning than of actual renewable use. Increasing reliability requires not only setting high objectives but also successfully putting them into practice and incorporating them into the energy system.
+
+-   **Economic capacity and infrastructure quality matter, but differently by network size.** Wealthier countries experience fewer outages across all network sizes. Grid losses are most strongly linked to outages in larger networks, while poverty shows only a weak relationship across all groups.
+
+-   **Extreme energy shortfalls are not explained by access or revenue problems alone.** Countries with unusually high Energy Not Supplied values actually tend to have higher electrification rates and similar revenue collection rates to other countries, pointing to other factors.
+
+-   **Higher electrification is associated with fewer and shorter outages, but is not sufficient on its own.** Some moderately electrified countries still face severe outages, indicating that infrastructure quality, grid investment, and system management are also independent drivers of reliability.
+
+**Conclusion and Connection to Theme:**
+
+Together, the findings confirm that predicting electricity reliability failures across Africa requires looking at all four structural drivers jointly: policy ambition, economic capacity, infrastructure quality, and access levels. This makes our analysis a comprehensive diagnostic for the power reliability challenges CATF's scorecard seeks to address.
+
+## Question #1: **Capucine Crouzet --- How does the gap between national renewable energy targets and current renewable generation share relate to electricity reliability in African countries?**
+
+**Connection to theme:**
+
+-   This question helps explain whether renewable energy policy ambition is linked to electricity reliability differences across African countries.
+-   If a relationship is found, the CATF can use these insights to better understand whether ambition, implementation, or the structure of renewable plans should be emphasized when developing the Electricity Sector Performance Scorecard and policy recommendations.
+
+**Approach:**
+
+-   New variables were created to estimate total renewable targets, ambition gaps, and renewable diversity, in order to compare policy plans and actual energy system outcomes.
+-   Countries were then grouped into Low, Medium, and High ambition levels based on the size of the weighted gap between their renewable energy targets and their current renewable generation share (each group reflects different levels of policy ambition).
+
+
+## Q1: Variables 
+
+**Key Variables:**
+
+```{r echo=FALSE}
+data.frame(
+  Variable = c("SAIDI", "Renewable target for Wind", "Renewable target for Solar",
+               "Renewable target for Storage", "Renewable target for Embedded Generation",
+               "Renewables Share in Generation Mix"),
+  Measure = c(
+    "Average outage duration per customer per year (h)",
+    "Total planned electricity generation from Wind (%)",
+    "Total planned electricity generation from Solar (%)",
+    "Total planned electricity generation from Energy Storage (e.g. batteries) (%)",
+    "Total planned electricity generation from Embedded Generation (small-scale or distributed renewable sources) (%)",
+    "Proportion of total electricity that is produced from renewable sources (%)"
+  )
+) |>
+  kable(col.names = c("Variable", "What it measures"),
+        format = "latex", booktabs = TRUE, longtable = FALSE) |>
+  kable_styling(font_size = 7, full_width = TRUE,
+                latex_options = "hold_position") |>
+  column_spec(1, width = "3cm") |>
+  column_spec(2, width = "9cm")
+```
+
+**New Variables:**
+
+```{r echo=FALSE}
+data.frame(
+  Variable = c("Total Renewable Target", "Ambition Gap", "Weighted Ambition Gap", "Ambition Level", "Renewable Diversity Index"),
+  Represents = c(
+    "Overall renewable energy policy ambition (%)",
+    "Shows how far a country is from meeting its renewable energy targets",
+    "Captures 'stretch' targets, accounting for starting renewable share",
+    "Categorizes ambition gap into Low/ Medium/ High levels",
+    "Measures diversity of renewable targets"
+  )
+) |>
+  kable(col.names = c("Variable", "What it represents"),
+        format = "latex", booktabs = TRUE, longtable = FALSE) |>
+  kable_styling(font_size = 7, full_width = TRUE,
+                latex_options = "hold_position") |>
+  column_spec(1, width = "3cm") |>
+  column_spec(2, width = "9cm")
+```
+
+## Q1: Visualization
+
+```{r q1_visualization, echo=FALSE, fig.height=4.5, fig.width=13, fig.cap="Comparison between Electricity Reliability (SAIDI index) and Renewable Policy Ambition in African countries."}
+q1_data <- CATF_clean |>
+  mutate(renewable_target_solar = as.numeric(gsub(",", ".", renewable_target_solar))) |> 
+  
+  mutate(
+    total_RE_target = renewable_target_wind + renewable_target_solar +
+                            renewable_target_storage + renewable_target_embedded_gen,
+    ambition_gap = total_RE_target - renewables_share_gen_mix_percent,
+    weighted_ambition_gap = ambition_gap / (renewables_share_gen_mix_percent + 0.1),
+    ambition_level = case_when(
+      weighted_ambition_gap <= quantile(weighted_ambition_gap, 0.33, na.rm = TRUE) ~ "Low",
+      weighted_ambition_gap <= quantile(weighted_ambition_gap, 0.66, na.rm = TRUE) ~ "Medium", TRUE ~ "High")) |> 
+  
+    mutate(
+    prop_wind = renewable_target_wind / total_RE_target,
+    prop_solar = renewable_target_solar / total_RE_target,
+    prop_storage = renewable_target_storage / total_RE_target,
+    prop_embedded = renewable_target_embedded_gen / total_RE_target) |>
+    
+    mutate(RE_diversity_index = 1 - (prop_wind^2 + prop_solar^2 + prop_storage^2 + prop_embedded^2)) |> 
+  
+  filter(!is.na(SAIDI), SAIDI <= 700, !is.na(weighted_ambition_gap), weighted_ambition_gap <= 200) 
+
+
+plot_1 <- q1_data |>
+  ggplot(aes(x = weighted_ambition_gap, y = SAIDI, color = ambition_level)) +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE, color = "black") +
+  labs(
+    x = "Renewable Policy Ambition Gap (weighted) (%)",
+    y = "SAIDI (Outage Hours per Year)",
+    color = "Ambition Level",
+    title = "Electricity Reliability vs Renewable Policy Ambition in African Countries"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 9, hjust = 0.5))
+
+plot_2 <- q1_data |>
+  ggplot(aes(x = ambition_level, y = SAIDI, fill = ambition_level)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(
+    x = "Ambition Level",
+    y = "SAIDI (Outage Hours per Year)",
+    title = "Distribution of SAIDI by Renewable Policy Ambition Level"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 9, hjust = 0.5)) +
+  theme(legend.position = "none")
+
+plot_1 + plot_2 + plot_layout(ncol = 2)
+```
+
+## Q1: Summary Table & Key Insights
+
+```{r q1_table, echo=FALSE}
+q1_data |>
+  group_by(ambition_level) |>
+  summarise(
+    Count = n(),
+    `Median SAIDI (hrs)` = round(median(SAIDI, na.rm = TRUE), 1),
+    `Median Total RE Target (%)` = round(median(total_RE_target, na.rm = TRUE), 1),
+    `Median Current RE Share (%)` = round(median(renewables_share_gen_mix_percent, na.rm = TRUE), 1),
+    `Median RE Diversity Index` = round(median(RE_diversity_index, na.rm = TRUE), 2)
+  ) |> 
+  kable(caption = "Electricity Reliability and Renewable Policy Ambition in African Countries", format = "latex", booktabs = TRUE, longtable = FALSE) |>
+  kable_styling(font_size = 7, full_width = TRUE,
+                latex_options = "hold_position")
+```
+
+**Key Insights:**
+
+-   **Wgt. Ambition gap** (scatterplot): General negative trend (downward slope), meaning that renewable policy ambition is associated with improved reliability.
+-   **Ambition Level** (boxplot): Higher ambition levels are associated with lower median SAIDI (~15h), suggesting that countries with more ambitious renewable policies tend to have more reliable electricity systems.
+-   **Current RE share** (table): High ambition countries have a low current RE share (8%) and low SAIDI (14.4h), suggesting that reliability is currently driven by existing non-renewable systems, and that policy ambition reflects future plans rather than present outcomes.
+-   **RE Diversity Index** (table) increases with ambition level, showing that more ambitious countries tend to plan a more diversified mix of renewable technologies.
+
+
+
+—------------------
+
+## Q1: Limitations and Future Direction
+
+**Limitations:**
+
+-   Extreme values in the weighted ambition gap and SAIDI variables were removed (capped at 200 and 700 respectively) for plot readability purposes, which affects the result and hides some outliers.
+-   The weighted ambition gap can create extreme values for countries with very low current RE shares, which may exaggerate their level of ambition and influence the observed relationship with reliability.
+-   Renewable diversity is measured using planned targets rather than actual generation mix, so it reflects intended strategies rather than what is currently implemented in the electricity system.
+
+
+**Future Directions:**
+
+-   Improve data collection to reduce missing values on all renewable targets variables. 
+-   Instead of removing extreme values, apply some separate analysis of outliers to better capture the full range of country situations.
+-   Include more detailed data on the actual renewable share generation mix by type (solar & wind) to better understand if having a mix of sources improves reliability. 
+
+
+## Question #2: **Maria Ramos --- How do infrastructure losses, economic conditions, and outage frequency differ across African countries grouped by network size, and what does this reveal about the structural drivers of reliability failures?**
+
+**Connection to theme:**
+
+-   Understanding how outage frequency, grid losses, and economic conditions vary across different network sizes is crucial to the CATF-ESPS scorecard.
+-   If smaller, less developed grids consistently show higher losses, lower incomes, and more frequent outages, CATF can use network size as a lens to create policy recommendations, recognising that the same policies may not work equally well for small developing grids and larger more established ones.
+
+**Approach:**
+
+-   Countries were grouped into Small, Medium, and Large networks based on terciles of electrification rate, so each group contains roughly equal numbers of countries.
+-   For each group, the median value of outage frequency, GDP per capita, total system loss, and poverty rate was calculated and displayed using bar charts to allow direct comparison across network sizes.
+
+## Q2: Variables
+
+**Key Variables:**
+
+```{r echo=FALSE}
+data.frame(
+  Variable = c("SAIFI", "Distribution losses", "Transmission losses",
+               "GDP per capita", "Poverty rate", "Electrification rate"),
+  Measure = c(
+    "Number of power cuts a typical customer experiences per year",
+    "Electricity lost between power stations and households (%)",
+    "Electricity lost on long-distance high-voltage lines (%)",
+    "Average economic output per person in USD",
+    "Share of population living below the poverty line",
+    "Share of population with electricity access (used to define network size)"
+  )
+) |>
+  kable(col.names = c("Variable", "What it measures"),
+        format = "latex", booktabs = TRUE, longtable = FALSE) |>
+  kable_styling(font_size = 7, full_width = TRUE,
+                latex_options = "hold_position") |>
+  column_spec(1, width = "3cm") |>
+  column_spec(2, width = "9cm")
+```
+
+**New Variables:**
+
+```{r echo=FALSE}
+data.frame(
+  Variable = c("Total System Loss", "Network Size"),
+  Represents = c(
+    "Distribution and transmission losses combined into one grid inefficiency measure",
+    "Countries grouped into Small, Medium, and Large based on electrification rate terciles"
+  )
+) |>
+  kable(col.names = c("Variable", "What it represents"),
+        format = "latex", booktabs = TRUE, longtable = FALSE) |>
+  kable_styling(font_size = 7, full_width = TRUE,
+                latex_options = "hold_position") |>
+  column_spec(1, width = "3cm") |>
+  column_spec(2, width = "9cm")
+```
+
+## Q2: Visualization
+
+```{r q2_visualization, echo=FALSE, fig.height=4.5, fig.width=13, fig.cap="Median outage frequency, GDP per capita, grid losses, and poverty rate by network size group across African countries."}
+q2_data <- CATF_clean |>
+  mutate(
+    total_system_loss = distn_loss_percent + transmission_loss_percent,
+    gdp = gdp / 1000,
+    network_size = case_when(
+      electrification_rate > quantile(electrification_rate, 0.66, na.rm = TRUE) ~ "Large",
+      electrification_rate > quantile(electrification_rate, 0.33, na.rm = TRUE) ~ "Medium",
+      TRUE ~ "Small"
+    ),
+    network_size = factor(network_size, levels = c("Small", "Medium", "Large"))
+  )
+
+q2_summary <- q2_data |>
+  group_by(network_size) |>
+  summarise(
+    median_SAIFI       = median(SAIFI, na.rm = TRUE),
+    median_gdp         = median(gdp, na.rm = TRUE),
+    median_system_loss = median(total_system_loss, na.rm = TRUE),
+    median_poverty     = median(poverty_rate, na.rm = TRUE)
+  )
+
+p1 <- ggplot(q2_summary, aes(x = network_size, y = median_SAIFI, fill = network_size)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = "Network Size", y = "Median Outage Frequency", title = "Outage Frequency") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 9, hjust = 0.5))
+
+p2 <- ggplot(q2_summary, aes(x = network_size, y = median_gdp, fill = network_size)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = "Network Size", y = "Median GDP per Capita\n(Thousands USD)", title = "Income Level") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 9, hjust = 0.5))
+
+p3 <- ggplot(q2_summary, aes(x = network_size, y = median_system_loss, fill = network_size)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = "Network Size", y = "Median System Loss (%)", title = "Grid Losses") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 9, hjust = 0.5))
+
+p4 <- ggplot(q2_summary, aes(x = network_size, y = median_poverty, fill = network_size)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = "Network Size", y = "Median Poverty Rate (%)", title = "Poverty Rate") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 9, hjust = 0.5))
+
+plot_grid(p1, p2, p3, p4, ncol = 4)
+```
+
+## Q2: Summary Table & Key Insights
+
+```{r q2_table, echo=FALSE}
+q2_data |>
+  group_by(`Network Size` = network_size) |>
+  summarise(
+    `Countries (n)` = n(),
+    `Median SAIFI` = round(median(SAIFI, na.rm = TRUE), 1),
+    `Median System Loss (%)` = round(median(total_system_loss, na.rm = TRUE), 1),
+    `Median GDP (Thousands USD)` = round(median(gdp, na.rm = TRUE), 1),
+    `Median Poverty Rate (%)` = round(median(poverty_rate, na.rm = TRUE), 1)
+  ) |>
+  kable(caption = "Comparison of Network Sizes",
+        format = "latex", booktabs = TRUE, longtable = FALSE) |>
+  kable_styling(font_size = 7, full_width = TRUE,
+                latex_options = "hold_position")
+```
+
+**Key Insights:**
+
+-   **Outage frequency** (Outage Frequency chart) drops steadily from Small (24.8) to Large (11.7) networks, showing that countries with wider electricity access experience fewer power cuts.
+-   **GDP per capita** (Income Level chart) rises from Small (0.8k USD) to Large (4.2k USD), showing the opposite pattern; wealthier countries tend to have more reliable grids.
+-   **Grid losses** (Grid Losses chart) are highest in Small networks (34.8%) and lowest in Large (27.7%), reflecting better infrastructure quality in more developed systems.
+-   **Poverty** (Poverty Rate chart) follows the same direction but the gap is smaller (0.5 to 0.3), suggesting poverty is a weaker predictor of outage frequency than income or grid losses.
+
+## Q2: Limitations and Future Direction
+
+**Limitations:**
+
+-   Extremely high or zero SAIFI values in some countries likely reflect data quality issues rather than true patterns, which affects group medians.
+-   Total system loss cannot distinguish electricity lost to poor infrastructure from electricity stolen, and countries with missing data are excluded.
+-   Bar charts show group medians only and do not capture variation within each network size group.
+
+**Future Directions:**
+
+-   Re-run the analysis excluding countries with extreme or zero outage values to check whether group median patterns still hold.
+-   Use datasets that separate technical losses from theft-related losses to more accurately measure infrastructure quality.
+-   Improve data collection to reduce missing values and include more countries in the analysis.
+
+## Question #3: Aminaa Enkhbat - How do countries with extreme Energy Not Supplied (ENS) differ in electrification rates and utility financial performance across Africa?
+
+**Connection to theme:**
+
+-   The ENS distribution is right-skewed, showing that a few countries have very high electricity shortages.
+-   We looked at whether these ENS outliers are linked to access to electricity in rural and urban areas, or to whether utilities can cover their operating costs.
+-   Understanding the relationship between connections can help CATF see what drives reliability problems and guide policies to improve electricity access while keeping systems running smoothly.
+
+**Approach**
+
+-   Defined ENS outliers using the standard IQR method (ENS \> Q3 + 1.5×IQR).
+-   Grouped countries into “Outlier” (highest ENS) and “Other” (remaining countries).
+-   Created boxplots to compare the medians of these variables across ENS groups.
+-   Computed summary statistics (median, min, max) for each group to quantify differences.
+
+## Q3: Variables
+
+**Key Variables:**
+
+```{r echo=FALSE}
+data.frame(
+  Variable = c("Energy Not Supplied (ENS)", "Rural Access to Electricity", "Urban Access to Electricity",
+               "Collection Rate Percentage"),
+  Measure = c(
+    "How much electricity people needed but did not receive",
+    "% of rural population with electricity connection",
+    "% of urban population with electricity connection",
+    "How much of the electricity bills that customers actually pay. It indicates whether the electricity company can financially sustain its operations."
+  )
+) |>
+  kable(col.names = c("Variable", "What it measures"),
+        format = "latex", booktabs = TRUE, longtable = FALSE) |>
+  kable_styling(font_size = 7, full_width = TRUE,
+                latex_options = "hold_position") |>
+  column_spec(1, width = "3cm") |>
+  column_spec(2, width = "9cm")
+```
+
+**New groups defined:**
+
+```{r echo=FALSE}
+data.frame(
+  Group = c("ENS"),
+  Represents = c(
+    "Splits countries into two groups: those with normal levels of electricity shortages, and those with unusually high shortages (ENS outliers)"
+  )
+) |>
+  kable(col.names = c("Group", "What it represents"),
+        format = "latex", booktabs = TRUE, longtable = FALSE) |>
+  kable_styling(font_size = 7, full_width = TRUE,
+                latex_options = "hold_position") |>
+  column_spec(1, width = "3cm") |>
+  column_spec(2, width = "9cm")
+```
+
+## Q3: Visualization
+
+```{r q3_visualization, echo=FALSE, fig.height=5.4, fig.width=15.6, out.width="\\linewidth", fig.cap="Boxplot across rural and urban electrification rate and collection rate between ENS groups & Distribution of ENS score for African countries"}
+Q3 <- quantile(CATF_clean$ENS, 0.75, na.rm = TRUE)
+IQR_val <- IQR(CATF_clean$ENS, na.rm = TRUE)
+outlier_threshold <- Q3 + 1.5*IQR_val
+p1<-CATF_clean |>
+  ggplot(aes(x=ENS)) +
+  geom_histogram(bins= 30,
+                color="blue",
+               fill="blue3") +
+  geom_vline(
+    xintercept = outlier_threshold,
+    linetype = "dashed",
+    color = "red",
+    linewidth = 1
+  ) +
+  labs(title = "ENS Distribution",
+       x="ENS", y="ENS Score")
+CATF_clean <- CATF_clean |> 
+  mutate(ENS_group = case_when(
+    ENS > outlier_threshold ~ "Outlier",
+    TRUE ~ "Other"
+  ))
+ENS_outliers <- CATF_clean |> 
+  filter(ENS > outlier_threshold) 
+CATF_long <- CATF_clean |> 
+  select(ENS_group, rural_access_electricity_rate, urban_access_electricity_rate, collection_rate_percent) |>
+  pivot_longer(cols = -ENS_group, names_to = "variable", values_to = "value")
+CATF_long <- CATF_clean |> 
+  select(ENS_group, rural_access_electricity_rate, urban_access_electricity_rate, collection_rate_percent) |>
+  pivot_longer(cols = -ENS_group, names_to = "variable", values_to = "value") |>
+  mutate(variable = case_when(
+    variable == "rural_access_electricity_rate"  ~ "Rural Access Rate",
+    variable == "urban_access_electricity_rate"  ~ "Urban Access Rate",
+    variable == "collection_rate_percent"        ~ "Collection Rate (%)",
+    TRUE ~ variable
+  ))
+p2<- ggplot(CATF_long, aes(x = ENS_group, y = value, fill = ENS_group)) +
+  geom_boxplot() +
+  facet_wrap(~ variable, scales = "free_y") +
+  labs(
+    title = "Distribution of Key Variables by ENS Group",
+    x = "ENS Group",
+    y = "ENS Score"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+p1/p2
+```
+
+\
+
+## Q3: Summary Table & Key Insights
+
+```{r q3_table, echo=FALSE}
+summary_table <- CATF_clean |> 
+  group_by(ENS_group) |> 
+  summarise(
+    `Median Rural Access (%)` = round(median(rural_access_electricity_rate, na.rm = TRUE), 1),
+    `Median Urban Access (%)` = round(median(urban_access_electricity_rate, na.rm = TRUE), 1),
+    `Median Collection Rate (%)` = round(median(collection_rate_percent, na.rm = TRUE), 1)
+  )
+
+summary_table |>
+  kable(caption = "Summary by ENS Group",
+        format = "latex", booktabs = TRUE, longtable = FALSE) |>
+  kable_styling(font_size = 7, full_width = TRUE,
+                latex_options = "hold_position")
+```
+
+**Key Insights:**
+
+-   **Rural access rate** (Rural Access chart) is much higher for Outliers (55.3%) than for Others (30.4%), suggesting that countries with broader rural electrification tend to experience higher outage severity.
+-   **Urban access rate** (Urban Access chart) is high for both groups but still higher for Outliers (95.5%) compared to Others (84.5%), indicating that any rate of access does not guarantee reliability.
+-   **Collection rate** (Collection Rate chart) shows only a modest difference between Outliers (79%) and Others (87%). While Outliers are slightly lower, the gap is relatively small, so we can’t confidently conclude that collection rate is a strong driver of ENS differences.
+
+## Q3: Limitations and Future Directions
+
+**Limitations**
+
+-   Small outlier group – Having only 6 outliers makes it harder to draw reliable conclusions about these extreme cases, since statistical patterns are less stable with very small groups.
+
+-   Data from different years - we’re not certain if every variable is from the exact same year. This means comparisons between countries might not fully reflect the same economic or electricity conditions at a single point in time.
+
+-   Missing values - Some countries or variables have missing data points. This can reduce the number of observations we can include in analyses and lead to biased conclusions.
+
+**Future Directions**
+
+-   Increase sample size and focus on outliers to improve representativeness.
+
+-   Use consistent-year data to address time-related biases.
+
+-   Handle missing values through better data collection methods.
+
+## Question #4: Vineet Koushal**How is the reliability of electricity supply, measured by outage duration and outage frequency, related to the electrification rate of countries?**
+
+**Connection to theme:**
+
+-   Understanding whether electricity access is linked to electricity reliability is important to the CATF scorecard.
+-  Countries may report a high electrification rate, but this doesn’t mean that the electricity is being provided constantly and in a dependable way.
+-   If countries with lower electrification also experience more frequent and longer outages, this suggests that expanding access and improving reliability are connected to a higher electrification rate.
+-   This comparison helps CATF identify whether electrification rate can serve as a useful indicator of how good the country's power grid performs and how reliable it is.
+
+**Approach:**
+
+-   Countries were compared using **electrification rate**, **SAIDI**, and **SAIFI**.
+-   Two scatterplots were used to compare  outage duration and outage frequency and how they change as electrification rises across countries.
+-   Countries were grouped into **Low**, **Medium**, **High**, and **Very High electrification** categories using quartiles of electrification rate.
+-   For each group, boxplots were used to show how the distribution of outage duration and outage frequency differs across electrification levels.
+
+
+
+
+
+## Q4: Variables 
+
+**Key Variables:**
+
+```{r echo=FALSE}
+data.frame(
+  Variable = c("SAIDI", "SAIFI", "Electrification rate"),
+  Measure = c(
+    "Average total outage duration experienced by a typical customer per year",
+    "Number of power cuts a typical customer experiences per year",
+    "Share of the population with access to electricity"
+  )
+) |>
+  kable(col.names = c("Variable", "What it measures"),
+        format = "latex", booktabs = TRUE, longtable = FALSE) |>
+  kable_styling(font_size = 7, full_width = TRUE,
+                latex_options = "hold_position") |>
+  column_spec(1, width = "3cm") |>
+  column_spec(2, width = "9cm")
+```
+
+**New Variables:**
+
+```{r echo=FALSE}
+data.frame(
+  Variable = c("Electrification Group"),
+  Represents = c(
+    "Countries grouped into Low, Medium, High, and Very High categories based on quartiles of electrification rate"
+  )
+) |>
+  kable(col.names = c("Variable", "What it represents"),
+        format = "latex", booktabs = TRUE, longtable = FALSE) |>
+  kable_styling(font_size = 7, full_width = TRUE,
+                latex_options = "hold_position") |>
+  column_spec(1, width = "3cm") |>
+  column_spec(2, width = "9cm")
+```
+
+## Q4: Visualization
+
+```{r q4_visualization, echo=FALSE, fig.height=6.5, fig.width=12.5, fig.cap="Relationship between electrification and electricity reliability across African countries. Extreme outliers above the 95th percentile are excluded from the plotted figures so underlying patterns are easier to interpret."}
+library(dplyr)
+library(ggplot2)
+library(cowplot)
+library(scales)
+
+q4_data <- CATF_clean |>
+  filter(!is.na(electrification_rate), !is.na(SAIDI), !is.na(SAIFI)) |>
+  filter(SAIDI > 0, SAIFI > 0) |>
+  mutate(
+    electrification_group = ntile(electrification_rate, 4),
+    electrification_group = case_when(
+      electrification_group == 1 ~ "Low",
+      electrification_group == 2 ~ "Medium",
+      electrification_group == 3 ~ "High",
+      electrification_group == 4 ~ "Very High"
+    ),
+    electrification_group = factor(
+      electrification_group,
+      levels = c("Low", "Medium", "High", "Very High")
+    )
+  )
+
+saifi_cutoff <- quantile(q4_data$SAIFI, 0.95, na.rm = TRUE)
+saidi_cutoff <- quantile(q4_data$SAIDI, 0.95, na.rm = TRUE)
+
+base_theme <- theme_minimal(base_size = 10) +
+  theme(
+    plot.title = element_text(size = 10, hjust = 0.5, face = "bold"),
+    axis.title = element_text(size = 9),
+    axis.text = element_text(size = 8),
+    panel.grid.minor = element_blank(),
+    legend.position = "none"
+  )
+
+p1 <- q4_data |>
+  filter(SAIFI <= saifi_cutoff) |>
+  ggplot(aes(x = electrification_rate, y = SAIFI)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", se = FALSE, colour = "grey35", linewidth = 0.8) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 20)) +
+  labs(
+    x = "Electrification Rate (%)",
+    y = "SAIFI",
+    title = "Outage Frequency and Electrification"
+  ) +
+  base_theme
+
+p2 <- q4_data |>
+  filter(SAIDI <= saidi_cutoff) |>
+  ggplot(aes(x = electrification_rate, y = SAIDI)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", se = FALSE, colour = "grey35", linewidth = 0.8) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 20)) +
+  labs(
+    x = "Electrification Rate (%)",
+    y = "SAIDI",
+    title = "Outage Duration and Electrification"
+  ) +
+  base_theme
+
+p3 <- q4_data |>
+  filter(SAIFI <= saifi_cutoff) |>
+  ggplot(aes(x = electrification_group, y = SAIFI, fill = electrification_group)) +
+  geom_boxplot(show.legend = FALSE) +
+  labs(
+    x = "Electrification Group",
+    y = "SAIFI",
+    title = "Outage Frequency by Electrification Group"
+  ) +
+  base_theme
+
+p4 <- q4_data |>
+  filter(SAIDI <= saidi_cutoff) |>
+  ggplot(aes(x = electrification_group, y = SAIDI, fill = electrification_group)) +
+  geom_boxplot(show.legend = FALSE) +
+  labs(
+    x = "Electrification Group",
+    y = "SAIDI",
+    title = "Outage Duration by Electrification Group"
+  ) +
+  base_theme
+
+plot_grid(p1, p2, p3, p4, ncol = 2)
+```
+
+
+## Q4: Summary Table & Key Insights
+
+```{r q4_table, echo=FALSE}
+library(dplyr)
+library(knitr)
+
+reliability_summary <- CATF_clean |>
+  filter(SAIDI > 0, SAIFI > 0, electrification_rate > 0) |>
+  mutate(electrification_category = ntile(electrification_rate, 4)) |>
+  mutate(
+    electrification_category = case_when(
+      electrification_category == 1 ~ "Low electrification",
+      electrification_category == 2 ~ "Medium electrification",
+      electrification_category == 3 ~ "High electrification",
+      electrification_category == 4 ~ "Very high electrification"
+    ),
+    electrification_category = factor(
+      electrification_category,
+      levels = c(
+        "Low electrification",
+        "Medium electrification",
+        "High electrification",
+        "Very high electrification"
+      )
+    )
+  ) |>
+  group_by(electrification_category) |>
+  summarise(
+    median_SAIDI = round(median(SAIDI, na.rm = TRUE), 2),
+    median_SAIFI = round(median(SAIFI, na.rm = TRUE), 2),
+    median_electrification = round(median(electrification_rate, na.rm = TRUE), 1),
+    n = n()
+  )
+
+kable(
+  reliability_summary,
+  col.names = c("Electrification Category", "Median SAIDI", "Median SAIFI",
+                "Median Electrification Rate", "Countries (n)"),
+  caption = "Electricity Reliability by Electrification Level"
+)
+```
+
+**Key Insights:**
+
+-   **Outage frequency.** A downward trend line and the lower median values in the High and Very High electrification groups suggest that countries with more electricity access tend to get power cuts more often
+
+-   **Outage duration** shows an even clearer negative pattern. The Very High electrification group has the lowest typical SAIDI values, suggesting that higher access is associated with shorter outages.
+
+-   **Inconsistent relationships across countries.** The Medium and High electrification groups have overlap, with some countries with high electrification having significant outages. This suggests that electrification improves electrification average, but does not fully determine it.
+
+-   **Variation within groups remains important.** The boxplots show much wider spread in the Low and Medium electrification groups, with Very High concentrated at lower outage values. This suggests that more electrified systems are more reliable and consistent on average.
+
+-   **The figures suggest that electricity access and electricity reliability affect each other** Countries with higher electrification rates generally outages less frequently and less severely, but consistency does not guarantee consistent reliable electricity supply.
+
+
+## Q4: Limitations and Future Direction
+
+**Limitations:**
+
+-   Extreme values of SAIDI or SAIFI may affect the visual pattern and make comparisons harder to interpret,  which led to me taking the 95th percentile values out of the graph.
+-   Boxplots and scatterplots reveal patterns, but they do not by themselves show causation.
+-   Electrification rate shows access to electricity, but not the quality, stability, or affordability of supply.
+
+**Future Directions:**
+
+-   Rerun the analysis excluding extreme outage values to test whether the overall pattern remains stable.
+-   Add measures of infrastructure quality, utility performance, or grid losses as other values to further show what factors affect reliability of electricity. 
+
