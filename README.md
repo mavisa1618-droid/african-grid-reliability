@@ -12,10 +12,10 @@ We analyse data from the Clean Air Task Force (CATF) to help inform its *Electri
 
 | | Finding |
 |---|---|
-| ⚡ **Policy ambition** | Countries with more ambitious renewable targets tend to have *shorter* outages. Their current renewable share is low, though, so this probably reflects stronger planning capacity rather than renewables themselves. |
-| 💰 **Wealth and infrastructure** | From small to large networks, median outage frequency halves (24.8 → 11.7 per year), GDP per capita rises five-fold ($0.8k → $4.2k), and grid losses fall (34.8% → 27.7%). |
-| 📉 **Extreme shortfalls** | The six countries with extreme Energy Not Supplied actually have *higher* rural and urban access rates, so access alone doesn't explain the worst shortages. |
-| 🔌 **Access vs reliability** | Higher electrification goes with fewer and shorter outages on average, but some well-electrified countries still have severe outages. |
+| **Policy ambition** | Countries with more ambitious renewable targets tend to have *shorter* outages. Their current renewable share is low, though, so this probably reflects stronger planning capacity rather than renewables themselves. |
+| **Wealth and infrastructure** | From small to large networks, median outage frequency halves (24.8 → 11.7 per year), GDP per capita rises five-fold ($0.8k → $4.2k), and grid losses fall (34.8% → 27.7%). |
+| **Extreme shortfalls** | The six countries with extreme Energy Not Supplied actually have *higher* rural and urban access rates, so access alone doesn't explain the worst shortages. |
+| **Access vs reliability** | Higher electrification goes with fewer and shorter outages on average, but some well-electrified countries still have severe outages. |
 
 ## Research questions
 
