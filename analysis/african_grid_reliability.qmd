@@ -2,7 +2,7 @@
 title: "Why Do African Power Grids Fail?"
 subtitle: "Examining Policy, Wealth, Infrastructure, and Access as Drivers of Electricity Reliability"
 author: "Aminaa Enkhbat, Capucine Crouzet, Maria Ramos and Vineet Koushal | Group 0111-E"
-date: today
+date: 2026-03-25
 format:
   beamer:
     theme: Madrid
@@ -29,7 +29,7 @@ format:
               \usebeamerfont{title in head/foot}\tiny Why Do African Power Grids Fail?
             \end{beamercolorbox}
             \begin{beamercolorbox}[wd=.23\paperwidth,ht=2.25ex,dp=1ex,center]{date in head/foot}
-              \usebeamerfont{date in head/foot}\tiny 2026-03-25\quad\insertframenumber/24
+              \usebeamerfont{date in head/foot}\tiny \insertdate\quad\insertframenumber/\inserttotalframenumber
             \end{beamercolorbox}
           }
           \vskip0pt
@@ -303,7 +303,6 @@ q1_data |>
 
 
 
-—------------------
 
 ## Q1: Limitations and Future Direction
 
@@ -397,7 +396,7 @@ q2_summary <- q2_data |>
     median_SAIFI       = median(SAIFI, na.rm = TRUE),
     median_gdp         = median(gdp, na.rm = TRUE),
     median_system_loss = median(total_system_loss, na.rm = TRUE),
-    median_poverty     = median(poverty_rate, na.rm = TRUE)
+    median_poverty     = median(poverty_rate, na.rm = TRUE) * 100
   )
 
 p1 <- ggplot(q2_summary, aes(x = network_size, y = median_SAIFI, fill = network_size)) +
@@ -437,7 +436,7 @@ q2_data |>
     `Median SAIFI` = round(median(SAIFI, na.rm = TRUE), 1),
     `Median System Loss (%)` = round(median(total_system_loss, na.rm = TRUE), 1),
     `Median GDP (Thousands USD)` = round(median(gdp, na.rm = TRUE), 1),
-    `Median Poverty Rate (%)` = round(median(poverty_rate, na.rm = TRUE), 1)
+    `Median Poverty Rate (%)` = round(median(poverty_rate, na.rm = TRUE) * 100, 1)
   ) |>
   kable(caption = "Comparison of Network Sizes",
         format = "latex", booktabs = TRUE, longtable = FALSE) |>
@@ -450,7 +449,7 @@ q2_data |>
 -   **Outage frequency** (Outage Frequency chart) drops steadily from Small (24.8) to Large (11.7) networks, showing that countries with wider electricity access experience fewer power cuts.
 -   **GDP per capita** (Income Level chart) rises from Small (0.8k USD) to Large (4.2k USD), showing the opposite pattern; wealthier countries tend to have more reliable grids.
 -   **Grid losses** (Grid Losses chart) are highest in Small networks (34.8%) and lowest in Large (27.7%), reflecting better infrastructure quality in more developed systems.
--   **Poverty** (Poverty Rate chart) follows the same direction but the gap is smaller (0.5 to 0.3), suggesting poverty is a weaker predictor of outage frequency than income or grid losses.
+-   **Poverty** (Poverty Rate chart) falls from 54% in Small networks to 32% in Large ones, following the same direction as income and outage frequency.
 
 ## Q2: Limitations and Future Direction
 
@@ -539,7 +538,7 @@ p1<-CATF_clean |>
     linewidth = 1
   ) +
   labs(title = "ENS Distribution",
-       x="ENS", y="ENS Score")
+       x="ENS", y="Number of Countries")
 CATF_clean <- CATF_clean |> 
   mutate(ENS_group = case_when(
     ENS > outlier_threshold ~ "Outlier",
@@ -547,9 +546,6 @@ CATF_clean <- CATF_clean |>
   ))
 ENS_outliers <- CATF_clean |> 
   filter(ENS > outlier_threshold) 
-CATF_long <- CATF_clean |> 
-  select(ENS_group, rural_access_electricity_rate, urban_access_electricity_rate, collection_rate_percent) |>
-  pivot_longer(cols = -ENS_group, names_to = "variable", values_to = "value")
 CATF_long <- CATF_clean |> 
   select(ENS_group, rural_access_electricity_rate, urban_access_electricity_rate, collection_rate_percent) |>
   pivot_longer(cols = -ENS_group, names_to = "variable", values_to = "value") |>
@@ -565,7 +561,7 @@ p2<- ggplot(CATF_long, aes(x = ENS_group, y = value, fill = ENS_group)) +
   labs(
     title = "Distribution of Key Variables by ENS Group",
     x = "ENS Group",
-    y = "ENS Score"
+    y = "Rate (%)"
   ) +
   theme_minimal() +
   theme(legend.position = "none")
@@ -799,15 +795,15 @@ kable(
 
 **Key Insights:**
 
--   **Outage frequency.** A downward trend line and the lower median values in the High and Very High electrification groups suggest that countries with more electricity access tend to get power cuts more often
+-   **Outage frequency.** A downward trend line and the lower median values in the High and Very High electrification groups suggest that countries with more electricity access tend to get power cuts less often
 
 -   **Outage duration** shows an even clearer negative pattern. The Very High electrification group has the lowest typical SAIDI values, suggesting that higher access is associated with shorter outages.
 
--   **Inconsistent relationships across countries.** The Medium and High electrification groups have overlap, with some countries with high electrification having significant outages. This suggests that electrification improves electrification average, but does not fully determine it.
+-   **Inconsistent relationships across countries.** The Medium and High electrification groups have overlap, with some countries with high electrification having significant outages. This suggests that electrification improves reliability on average, but does not fully determine it.
 
 -   **Variation within groups remains important.** The boxplots show much wider spread in the Low and Medium electrification groups, with Very High concentrated at lower outage values. This suggests that more electrified systems are more reliable and consistent on average.
 
--   **The figures suggest that electricity access and electricity reliability affect each other** Countries with higher electrification rates generally outages less frequently and less severely, but consistency does not guarantee consistent reliable electricity supply.
+-   **The figures suggest that electricity access and electricity reliability affect each other** Countries with higher electrification rates generally experience outages less frequently and less severely, but higher access alone does not guarantee a reliable electricity supply.
 
 
 ## Q4: Limitations and Future Direction
