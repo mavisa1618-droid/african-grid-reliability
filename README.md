@@ -95,6 +95,17 @@ The dataset is in [`data/CATF_data.csv`](data/CATF_data.csv). It has 585 rows (s
 
 **Aminaa Enkhbat · Capucine Crouzet · Maria Ramos · Vineet Koushal**
 
-After the course, I extended my question (Q2) with the within-group correlations, the income regression and the bootstrap check.
+### My part: Q2 (Maria Ramos)
 
-**My contributions (Maria Ramos):** <!-- TODO: describe your part, e.g. "Led Q2: built the network-size grouping and total system loss variable, and produced the comparison charts and summary table" -->
+I led the second question: how do grid losses, income and outage frequency differ across countries grouped by network size?
+
+**During the course (March 2026)**
+- Created the *total system loss* variable by adding distribution and transmission losses into one measure of grid inefficiency.
+- Grouped the 54 countries into Small, Medium and Large networks using terciles of the electrification rate, so each group has roughly the same number of countries.
+- Compared the groups with bar charts of median outage frequency (SAIFI), GDP per capita, grid losses and poverty rate, plus a summary table.
+
+**After the course (November 2026)**
+- Fixed the poverty chart, which was plotting fractions (0.54) under a percentage label (now 54%).
+- Checked which factors hold up *within* each network size using Spearman correlations. Income was the only one linked to fewer outages in all three groups.
+- Fitted a log-log regression of outage frequency on GDP per capita: doubling income is associated with about half as many outages (slope -0.97, 95% CI -1.43 to -0.52).
+- Tested whether the gap between small and large networks is real with a bootstrap (1,000 resamples). The 95% interval includes zero, so the network-size gap alone is not reliable, and the conclusion now leads with income instead.
