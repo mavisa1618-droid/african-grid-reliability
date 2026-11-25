@@ -133,7 +133,7 @@ data.frame(
 
 -   **Better electrical reliability is associated with higher renewable ambition**, but this is probably more the result of better planning than of actual renewable use. Increasing reliability requires not only setting high objectives but also successfully putting them into practice and incorporating them into the energy system.
 
--   **Economic capacity and infrastructure quality matter, but differently by network size.** Wealthier countries experience fewer outages across all network sizes. Grid losses are most strongly linked to outages in larger networks, while poverty shows only a weak relationship across all groups.
+-   **Income is the most consistent driver of outage frequency.** Doubling GDP per capita is associated with roughly half as many outages, and this holds in every network size group. Grid losses and poverty are linked to outages in some groups but not others, and the gap between small and large networks is too uncertain to rely on by itself.
 
 -   **Extreme energy shortfalls are not explained by access or revenue problems alone.** Countries with unusually high Energy Not Supplied values actually tend to have higher electrification rates and similar revenue collection rates to other countries, pointing to other factors.
 
@@ -431,17 +431,102 @@ q2_data |>
 -   **Grid losses** (Grid Losses chart) are highest in Small networks (34.8%) and lowest in Large (27.7%), reflecting better infrastructure quality in more developed systems.
 -   **Poverty** (Poverty Rate chart) falls from 54% in Small networks to 32% in Large ones, following the same direction as income and outage frequency.
 
+## Q2: Is Income the Real Driver?
+
+```{r q2_income, echo=FALSE, fig.height=4.2, fig.width=13, fig.cap="Left: Spearman correlation between outage frequency and each factor, within each network size group. Right: GDP per capita against outage frequency (log scales), with a fitted regression line and 95% confidence band. Countries reporting zero outages are excluded from the right panel because a log scale cannot show zero."}
+q2_correlations <- q2_data |>
+  filter(!is.na(SAIFI)) |>
+  group_by(network_size) |>
+  summarise(
+    `GDP per capita` = cor(SAIFI, gdp, use = "complete.obs", method = "spearman"),
+    `Grid losses` = cor(SAIFI, total_system_loss, use = "complete.obs", method = "spearman"),
+    `Poverty rate` = cor(SAIFI, poverty_rate, use = "complete.obs", method = "spearman")
+  ) |>
+  pivot_longer(-network_size, names_to = "factor", values_to = "correlation")
+
+p_cor <- ggplot(q2_correlations, aes(x = network_size, y = factor, fill = correlation)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = round(correlation, 2)), size = 4) +
+  scale_fill_gradient2(low = "steelblue", mid = "white", high = "firebrick",
+                       midpoint = 0, limits = c(-1, 1)) +
+  labs(x = "Network Size", y = NULL, fill = "Correlation\nwith SAIFI",
+       title = "Which Factors Move With Outage Frequency?") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 10, hjust = 0.5))
+
+gdp_data <- q2_data |>
+  filter(!is.na(SAIFI), SAIFI > 0, !is.na(gdp))
+
+gdp_model <- lm(log(SAIFI) ~ log(gdp), data = gdp_data)
+gdp_slope <- coef(gdp_model)[2]
+gdp_slope_ci <- confint(gdp_model)[2, ]
+
+p_gdp <- ggplot(gdp_data, aes(x = gdp, y = SAIFI)) +
+  geom_smooth(method = "lm", color = "black", fill = "grey80") +
+  geom_point(aes(color = network_size), size = 2.5, alpha = 0.8) +
+  scale_x_log10() +
+  scale_y_log10() +
+  labs(x = "GDP per Capita (Thousands USD, log scale)",
+       y = "Outages per Year (SAIFI, log scale)",
+       color = "Network Size",
+       title = "Richer Countries Have Fewer Outages") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 10, hjust = 0.5))
+
+p_cor + p_gdp + plot_layout(widths = c(1, 1.3))
+```
+
+-   **GDP is the only factor that points the same way in every group:** higher income goes with fewer outages in Small, Medium and Large networks. Grid losses and poverty change direction from group to group.
+-   **Size of the effect:** in a log-log regression (n = `r nrow(gdp_data)`), doubling GDP per capita is associated with about `r round(100 * (1 - 2^gdp_slope))`% fewer outages per year (slope `r round(gdp_slope, 2)`, 95% CI `r round(gdp_slope_ci[1], 2)` to `r round(gdp_slope_ci[2], 2)`; R² = `r round(summary(gdp_model)$r.squared, 2)`).
+
+## Q2: How Sure Can We Be About the Gap?
+
+```{r q2_bootstrap, echo=FALSE, fig.height=3.4, fig.width=8, fig.cap="Bootstrap distribution of the difference in median outage frequency between Small and Large networks (1,000 resamples). Dashed red lines mark the 95% interval; the black line marks no difference."}
+small_saifi <- q2_data |> filter(network_size == "Small", !is.na(SAIFI)) |> pull(SAIFI)
+large_saifi <- q2_data |> filter(network_size == "Large", !is.na(SAIFI)) |> pull(SAIFI)
+observed_gap <- median(small_saifi) - median(large_saifi)
+
+set.seed(130)
+boot_gaps <- replicate(1000, median(sample(small_saifi, replace = TRUE)) -
+                         median(sample(large_saifi, replace = TRUE)))
+boot_ci <- quantile(boot_gaps, c(0.025, 0.975))
+
+# robustness check: the same interval without countries reporting zero outages
+set.seed(130)
+small_nonzero <- small_saifi[small_saifi > 0]
+large_nonzero <- large_saifi[large_saifi > 0]
+boot_gaps_nonzero <- replicate(1000, median(sample(small_nonzero, replace = TRUE)) -
+                                 median(sample(large_nonzero, replace = TRUE)))
+boot_ci_nonzero <- quantile(boot_gaps_nonzero, c(0.025, 0.975))
+
+ggplot(data.frame(gap = boot_gaps), aes(x = gap)) +
+  geom_histogram(bins = 30, fill = "steelblue", color = "white") +
+  geom_vline(xintercept = boot_ci, linetype = "dashed", color = "red") +
+  geom_vline(xintercept = 0, color = "black") +
+  labs(x = "Small minus Large: difference in median outages per year",
+       y = "Bootstrap samples",
+       title = "Bootstrap Estimate of the Small vs Large Gap") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 10, hjust = 0.5))
+```
+
+-   Small networks have `r round(observed_gap, 1)` more outages per year than Large ones (median), but the 95% bootstrap interval runs from `r round(boot_ci[1], 1)` to `r round(boot_ci[2], 1)`, which includes zero. With only 17 to 19 countries per group, this gap **could be due to chance**.
+-   Excluding countries that report zero outages gives the same conclusion (95% interval `r round(boot_ci_nonzero[1], 1)` to `r round(boot_ci_nonzero[2], 1)`).
+-   So network size on its own is a weak guide; **income explains outage frequency more reliably** than the size of the grid.
+
 ## Q2: Limitations and Future Direction
 
 **Limitations:**
 
 -   Extremely high or zero SAIFI values in some countries likely reflect data quality issues rather than true patterns, which affects group medians.
 -   Total system loss cannot distinguish electricity lost to poor infrastructure from electricity stolen, and countries with missing data are excluded.
--   Bar charts show group medians only and do not capture variation within each network size group.
+-   Bar charts show group medians only and do not capture variation within each network size group; the bootstrap shows this variation is large.
+-   The regression shows association, not causation: richer countries may also have newer grids, better utilities and more investment.
 
 **Future Directions:**
 
--   Re-run the analysis excluding countries with extreme or zero outage values to check whether group median patterns still hold.
+-   Add more years of data per country to narrow the bootstrap interval and test whether the network size gap is real.
+-   Extend the regression with grid losses and investment to separate the effect of income from infrastructure quality.
 -   Use datasets that separate technical losses from theft-related losses to more accurately measure infrastructure quality.
 -   Improve data collection to reduce missing values and include more countries in the analysis.
 

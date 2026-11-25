@@ -13,7 +13,7 @@ We analyse data from the Clean Air Task Force (CATF) to help inform its *Electri
 | | Finding |
 |---|---|
 | **Policy ambition** | Countries with more ambitious renewable targets tend to have *shorter* outages. Their current renewable share is low, though, so this probably reflects stronger planning capacity rather than renewables themselves. |
-| **Wealth and infrastructure** | From small to large networks, median outage frequency halves (24.8 → 11.7 per year), GDP per capita rises five-fold ($0.8k → $4.2k), and grid losses fall (34.8% → 27.7%). |
+| **Wealth and infrastructure** | Income is the most consistent driver: doubling GDP per capita is associated with about half as many outages (95% CI for the log-log slope: -1.43 to -0.52), in every network size. Grid losses and poverty point in different directions from group to group, and the small vs large network gap is too uncertain to rely on (bootstrap 95% interval includes zero). |
 | **Extreme shortfalls** | The six countries with extreme Energy Not Supplied actually have *higher* rural and urban access rates, so access alone doesn't explain the worst shortages. |
 | **Access vs reliability** | Higher electrification goes with fewer and shorter outages on average, but some well-electrified countries still have severe outages. |
 
@@ -36,6 +36,12 @@ Each team member led one question:
 **Q2: Outages, income, grid losses and poverty by network size**
 ![Q2](figures/q2_visualization-1.png)
 
+**Q2: Which factors hold up within each network size, and how strongly income predicts outages**
+![Q2 income](figures/q2_income-1.png)
+
+**Q2: Bootstrap check of the small vs large network gap**
+![Q2 bootstrap](figures/q2_bootstrap-1.png)
+
 **Q3: Countries with extreme Energy Not Supplied**
 ![Q3](figures/q3_visualization-1.png)
 
@@ -46,7 +52,7 @@ Each team member led one question:
 
 - **Cleaning.** The raw data has about 11 rows per country, one per data source. We collapse it to one row per country, using the **median** for numeric variables and the **mode** for text variables ([`R/clean_data.R`](R/clean_data.R)).
 - **Derived variables.** These include total system loss (distribution + transmission), a weighted renewable *ambition gap*, a renewable diversity index (1 − Σ shares²), network-size terciles, electrification quartiles, and ENS outliers using the 1.5 × IQR rule.
-- **Analysis.** We compared groups with box plots, bar charts of group medians, and scatter plots with linear trend lines. All results are descriptive associations, not causal estimates.
+- **Analysis.** We compared groups with box plots, bar charts of group medians, and scatter plots with linear trend lines. Q2 also uses Spearman correlations within groups, a log-log linear regression, and a bootstrap confidence interval (1,000 resamples). All results are associations, not causal estimates.
 
 ## Known data limitations
 
@@ -88,5 +94,7 @@ The dataset is in [`data/CATF_data.csv`](data/CATF_data.csv). It has 585 rows (s
 ## Team
 
 **Aminaa Enkhbat · Capucine Crouzet · Maria Ramos · Vineet Koushal**
+
+After the course, I extended my question (Q2) with the within-group correlations, the income regression and the bootstrap check.
 
 **My contributions (Maria Ramos):** <!-- TODO: describe your part, e.g. "Led Q2: built the network-size grouping and total system loss variable, and produced the comparison charts and summary table" -->
