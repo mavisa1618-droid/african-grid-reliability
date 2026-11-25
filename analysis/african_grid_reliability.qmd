@@ -38,12 +38,15 @@ editor: visual
 ---
 
 ```{r setup, include=FALSE}
-library(gridExtra)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(ggplot2)
 library(kableExtra)
-library(tidyverse)
 library(patchwork)
 library(knitr)
 library(cowplot)
+library(scales)
 options(knitr.table.format = "latex")
 knitr::opts_chunk$set(
 echo = FALSE,
@@ -59,7 +62,7 @@ out.width = "80%"
 ```
 
 ```{r load-data, echo=FALSE}
-CATF_data <- read_csv("CATF_data.csv")
+CATF_data <- read_csv("../data/CATF_data.csv")
 ```
 
 ```{r clean_data, include=FALSE}
@@ -674,11 +677,6 @@ data.frame(
 ## Q4: Visualization
 
 ```{r q4_visualization, echo=FALSE, fig.height=6.5, fig.width=12.5, fig.cap="Relationship between electrification and electricity reliability across African countries. Extreme outliers above the 95th percentile are excluded from the plotted figures so underlying patterns are easier to interpret."}
-library(dplyr)
-library(ggplot2)
-library(cowplot)
-library(scales)
-
 q4_data <- CATF_clean |>
   filter(!is.na(electrification_rate), !is.na(SAIDI), !is.na(SAIFI)) |>
   filter(SAIDI > 0, SAIFI > 0) |>
@@ -763,9 +761,6 @@ plot_grid(p1, p2, p3, p4, ncol = 2)
 ## Q4: Summary Table & Key Insights
 
 ```{r q4_table, echo=FALSE}
-library(dplyr)
-library(knitr)
-
 reliability_summary <- CATF_clean |>
   filter(SAIDI > 0, SAIFI > 0, electrification_rate > 0) |>
   mutate(electrification_category = ntile(electrification_rate, 4)) |>
